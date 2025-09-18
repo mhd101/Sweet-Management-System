@@ -166,4 +166,64 @@ describe('Test for Sweets', () => {
         expect(res.body.success).toBe(true);
         expect(res.body.sweets.length).toBe(2); // Lassi and Ladoo
     });
+
+    // updating sweet details with admin role
+    it("should update sweet details", async () => {
+        // first create a sweet to update
+        const sweetRes = await request(app)
+            .post('/api/sweets')
+            .set("Authorization", `Bearer ${userToken}`)
+            .send({
+                name: 'Strawberry Cake',
+                category: 'cake',
+                price: 20.0,
+                quantity: 5
+            });
+        const sweetId = sweetRes.body.sweet._id;
+
+        // now update the sweet
+        const res = await request(app)
+            .put(`/api/sweets/${sweetId}`)
+            .set("Authorization", `Bearer ${adminToken}`) // assuming only admin can update
+            .send({
+                price: 18.0,
+                quantity: 8,
+                name: "Strawberry Delight",
+                category: "other"
+            });
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.sweet.price).toBe(18.0);
+        expect(res.body.sweet.quantity).toBe(8);
+        expect(res.body.sweet.name).toBe("Strawberry Delight");
+        expect(res.body.sweet.category).toBe("other");
+    })
+
+    // updating sweet details with user role
+    it("should not update sweet details with user role", async () => {
+        // first create a sweet to update
+        const sweetRes = await request(app)
+            .post('/api/sweets')
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({
+                name: 'Strawberry Cake',
+                category: 'cake',
+                price: 20.0,
+                quantity: 5
+            });
+        const sweetId = sweetRes.body.sweet._id;
+
+        // now update the sweet
+        const res = await request(app)
+            .put(`/api/sweets/${sweetId}`)
+            .set("Authorization", `Bearer ${userToken}`) // user role
+            .send({
+                price: 18.0,
+                quantity: 8,
+                name: "Strawberry Delight",
+                category: "other"
+            });
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.message).toBe("You do not have permission to perform this action");
+    })
 });

@@ -1,6 +1,6 @@
 import express from 'express';
 import Sweet from '../models/Sweet.js';
-import { validateSweet, validateSweetSearch } from '../middlewares/validation.js';
+import { validateSweet, validateSweetSearch, validateSweetUpdate } from '../middlewares/validation.js';
 import { authenticateToken, authorizeRoles } from '../middlewares/auth.js';
 
 const router = express.Router();
@@ -118,6 +118,52 @@ router.get('/search', authenticateToken, validateSweetSearch, async (req, res) =
         res.status(500).json({
             success: false,
             message: "Server error while searching sweets",
+            error: error.message
+        })
+    }
+})
+
+// update a sweet by id
+router.put('/:id', authenticateToken, authorizeRoles('admin'), validateSweetUpdate, async (req, res) => {
+    try {
+        const sweetId = req.params.id;
+        const updateData = req.body;
+
+        // find the sweet by id
+        const sweet = await Sweet.findById(sweetId);
+        if (!sweet) {
+            return res.status(404).json({
+                success: false,
+                message: "Sweet not found"
+            });
+        }
+
+        // if name is being updated, check for uniqueness
+        if (updateData.name && updateData.name !== sweet.name) {
+            const existingSweet = await Sweet.findOne({ name: updateData.name });
+            if (existingSweet) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Another sweet with this name already exists"
+                });
+            }
+        }
+        
+        // update the sweet
+        Object.assign(sweet, updateData);
+        await sweet.save(); 
+
+        // respond with the updated sweet
+        res.status(200).json({
+            success: true,
+            message: "Sweet updated successfully",
+            sweet
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Server error while updating sweet",
             error: error.message
         })
     }
