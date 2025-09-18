@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env" });
+
 import mongoose from "mongoose";
 import connectDB from "../src/config/db.js";
 
@@ -12,6 +15,4 @@ describe("MongoDB Connection", () => {
     const conn = await connectDB();
     expect(conn.connection.readyState).toBe(1); // 1 = connected
   });
-
-
 });
