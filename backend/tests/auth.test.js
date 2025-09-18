@@ -61,7 +61,7 @@ describe("Test for Login", () => {
 
     it('should login an existing user', async () => {
         await request(app)
-            .post('/api/auth/login')
+            .post('/api/auth/register')
             .send({
                 firstName: 'test',
                 lastName: 'user',

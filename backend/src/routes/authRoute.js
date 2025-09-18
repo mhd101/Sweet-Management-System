@@ -1,7 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import { validateRegister } from '../middlewares/validation.js';
+import { validateRegister, validateLogin } from '../middlewares/validation.js';
 
 const router = express.Router();
 
@@ -65,6 +65,59 @@ router.post('/register', validateRegister, async (req, res) => {
             error: error.message
         });
     }
+});
+
+// login an existing user
+router.post('/login', validateLogin, async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // find user by email
+        const user = await User.findOne({
+            email
+        })
+
+        // if user not found
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Email or Password"
+            })
+        }
+
+        // check if password not matches
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Email or Password"
+            });
+        }
+
+        // generate token
+        const token = generateToken(user);
+
+        // respond with token and user info
+        res.status(200).json({
+            success: true,
+            message: "User logged in successfully",
+            token,
+            user: {
+                id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Server error during login',
+            error: error.message
+        });
+    }
+
 })
 
 export default router;
