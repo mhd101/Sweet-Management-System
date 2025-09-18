@@ -17,7 +17,7 @@ const generateToken = (user) => {
 // register a new user
 router.post('/register', validateRegister, async (req, res) => {
     try {
-        const { firstName, lastName, email, password } = req.body;
+        const { firstName, lastName, email, password, role } = req.body;
 
         // check if user already exists
         const existingUser = await User.findOne({
@@ -37,7 +37,8 @@ router.post('/register', validateRegister, async (req, res) => {
             firstName,
             lastName,
             email,
-            password
+            password,
+            role: role || 'user' // default role is 'user'
         });
 
         // save user to db

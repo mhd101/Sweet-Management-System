@@ -30,6 +30,10 @@ export const validateRegister = [
         .trim()
         .isLength({ min: 1 })
         .withMessage('Last name is required'),
+    body('role')
+        .optional()
+        .isIn(['user', 'admin'])
+        .withMessage('Role must be either user or admin'),
     handleValidationErrors
 ];
 
@@ -92,3 +96,26 @@ export const validateSweetSearch = [
     }),
     handleValidationErrors
 ];
+
+// validate update sweet
+export const validateSweetUpdate = [
+    body('name')
+        .optional()
+        .trim()
+        .isLength({ min: 1 })
+        .withMessage('Name is required'),
+    body('category')
+        .optional()
+        .trim()
+        .isIn(['cake', 'candy', 'cookie', 'pie', 'other'])
+        .withMessage('Category must be one of the following: cake, candy, cookie, pie, other'),
+    body('price')
+        .optional()
+        .isFloat({ gt: 0 })
+        .withMessage('Price must be a number greater than 0'),
+    body('quantity')
+        .optional()
+        .isInt({ gt: -1 })
+        .withMessage('Quantity must be a non-negative integer'),
+    handleValidationErrors
+]
