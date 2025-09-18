@@ -271,4 +271,57 @@ describe('Test for Sweets', () => {
         expect(res.statusCode).toEqual(403);
         expect(res.body.message).toBe("You do not have permission to perform this action");
     })
+
+    // purchasing a sweet
+    it("should purchase a sweet", async () => {
+        // first create a sweet to purchase
+        const sweetRes = await request(app)
+            .post('/api/sweets')
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({
+                name: 'Orange Candy',
+                category: 'candy',
+                price: 8.0,
+                quantity: 50
+            });
+        const sweetId = sweetRes.body.sweet._id;
+
+        // now purchase the sweet
+        const res = await request(app)
+            .post(`/api/sweets/${sweetId}/purchase`)
+            .set("Authorization", `Bearer ${userToken}`)
+            .send({
+                quantity: 5
+            });
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.message).toBe("Purchase successful");
+        expect(res.body.sweet.quantity).toBe(45); // 50 - 5 = 45
+    })
+
+    // purchasing a sweet with insufficient stock
+    it("should not purchase a sweet with insufficient stock", async () => {
+        // first create a sweet to purchase
+        const sweetRes = await request(app)
+            .post('/api/sweets')
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({
+                name: 'Orange Candy',
+                category: 'candy',
+                price: 8.0,
+                quantity: 10
+            });
+        const sweetId = sweetRes.body.sweet._id;
+        
+        // now try to purchase more than available stock
+        const res = await request(app)
+            .post(`/api/sweets/${sweetId}/purchase`)
+            .set("Authorization", `Bearer ${userToken}`)
+            .send({
+                quantity: 15
+            });
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe("Insufficient stock");
+    })
 });
