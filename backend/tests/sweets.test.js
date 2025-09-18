@@ -34,6 +34,13 @@ beforeAll(async () => {
         role: 'admin'
     });
     adminToken = admin.body.token
+
+    // seed sweets
+    await Sweet.create([
+        { name: "Lassi", category: "other", price: 15.99, quantity: 10 },
+        { name: "Gulab Jamun", category: "candy", price: 5.0, quantity: 20 },
+        { name: "Ladoo", category: "candy", price: 10.0, quantity: 30 },
+    ]);
 });
 
 // Clean up sweets after each test to ensure test isolation
@@ -85,7 +92,7 @@ describe('Test for Sweets', () => {
             .post('/api/sweets')
             .set("Authorization", `Bearer ${userToken}`)
             .send(sweetData);
-            
+
         expect(res.statusCode).toEqual(400);
         expect(res.body.success).toBe(false);
         expect(res.body.message).toBe("Sweet with this name already exists");
@@ -103,7 +110,7 @@ describe('Test for Sweets', () => {
                 price: 15.99,
                 quantity: 10
             });
-            
+
         const res = await request(app)
             .get('/api/sweets')
             .set("Authorization", `Bearer ${userToken}`);
@@ -111,5 +118,36 @@ describe('Test for Sweets', () => {
         expect(res.body.success).toBe(true);
         expect(res.body.sweets.length).toBe(1);
         expect(res.body.sweets[0]).toHaveProperty("_id");
+    })
+
+    // searching sweets by name
+    it("should search sweets by name", async () => {
+        const res = await request(app)
+            .get('/api/sweets/search?search=gulab')
+            .set("Authorization", `Bearer ${userToken}`);
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.sweets.length).toBeGreaterThan(0);
+        expect(res.body.sweets[0].name).toBe("Gulab Jamun");
+    })
+
+    // searching sweets by category
+    it("should filter sweets by category", async () => {
+        const res = await request(app)
+            .get('/api/sweets/search?category=sweet')
+            .set("Authorization", `Bearer ${userToken}`);
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.sweets.length).toBe(2); // Gulab Jamun and Ladoo
+    })
+
+    // searching sweet by price range
+    it("should filter sweets by price range", async () => {
+        const res = await request(app)
+            .get('/api/sweets/search?minPrice=6&maxPrice=20')
+            .set("Authorization", `Bearer ${userToken}`);
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.sweets.length).toBe(2); // Lassi and Ladoo
     })
 });
