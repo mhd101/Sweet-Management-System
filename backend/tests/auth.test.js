@@ -24,6 +24,8 @@ describe('Test for Registration', () => {
         const res = await request(app)
             .post('/api/auth/register')
             .send({
+                firstName: 'test',
+                lastName: 'user',
                 email: 'test@user.com',
                 password: 'password123'
             });
@@ -36,12 +38,16 @@ describe('Test for Registration', () => {
         await request(app)
             .post('/api/auth/register')
             .send({
+                firstName: 'test',
+                lastName: 'user',
                 email: 'test@user.com',
                 password: 'password123'
             });
         const res = await request(app)
             .post('/api/auth/register')
             .send({
+                firstName: 'test',
+                lastName: 'user',
                 email: 'test@user.com',
                 password: 'password1234'
             });

@@ -3,7 +3,8 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
-import { connectDB } from './config/db.js';
+import connectDB  from './config/db.js';
+import authRoute from './routes/authRoute.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -32,6 +33,9 @@ app.get('/api/', (req, res) => {
 app.get('/', (req, res) => {
     res.send("Welcome to Sweet API")
 })
+
+// routes
+app.use('/api/auth', authRoute);
 
 // listening to the server on the specified port
 app.listen(PORT, () => {
