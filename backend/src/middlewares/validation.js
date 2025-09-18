@@ -44,3 +44,22 @@ export const validateLogin = [
     .withMessage('Password is required'),
   handleValidationErrors
 ];
+
+// handling validation for creating a sweet
+export const validateSweet = [
+    body('name')
+        .trim()
+        .isLength({ min: 1 })
+        .withMessage('Name is required'),
+    body('category')
+        .trim()
+        .isIn(['cake', 'candy', 'cookie', 'pie', 'other'])
+        .withMessage('Category must be one of the following: cake, candy, cookie, pie, other'),
+    body('price')
+        .isFloat({ gt: 0 })
+        .withMessage('Price must be a number greater than 0'),
+    body('quantity')
+        .isInt({ gt: -1 })
+        .withMessage('Quantity must be a non-negative integer'),
+    handleValidationErrors
+]
