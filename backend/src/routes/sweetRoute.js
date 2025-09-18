@@ -6,7 +6,7 @@ import { authenticateToken, authorizeRoles } from '../middlewares/auth.js';
 const router = express.Router();
 
 // add a new sweet
-router.post('/', authenticateToken, validateSweet, async (req, res) => {
+router.post('/', authenticateToken, validateSweet, authorizeRoles('admin'), async (req, res) => {
     try {
         const { name, category, price, quantity } = req.body;
 
@@ -50,7 +50,7 @@ router.post('/', authenticateToken, validateSweet, async (req, res) => {
 })
 
 // get all sweets
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', authenticateToken, authorizeRoles('user', 'admin'), async (req, res) => {
     try {
         const sweets = await Sweet.find();
 
@@ -79,7 +79,7 @@ router.get('/', authenticateToken, async (req, res) => {
 })
 
 // search sweets by name, category or price range
-router.get('/search', authenticateToken, validateSweetSearch, async (req, res) => {
+router.get('/search', authenticateToken, validateSweetSearch,authorizeRoles('user', 'admin'), async (req, res) => {
     try {
         const { name, category, minPrice, maxPrice } = req.query;
         // store filters in an object
@@ -123,7 +123,7 @@ router.get('/search', authenticateToken, validateSweetSearch, async (req, res) =
     }
 })
 
-// update a sweet by id
+// update a sweet by id 
 router.put('/:id', authenticateToken, authorizeRoles('admin'), validateSweetUpdate, async (req, res) => {
     try {
         const sweetId = req.params.id;

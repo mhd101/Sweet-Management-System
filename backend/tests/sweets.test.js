@@ -29,7 +29,7 @@ beforeAll(async () => {
     const admin = await request(app).post('/api/auth/register').send({
         firstName: 'admin',
         lastName: 'user',
-        email: 'admin@user.com',
+        email: 'test@admin.com',
         password: 'password123',
         role: 'admin'
     });
@@ -46,12 +46,11 @@ afterAll(async () => {
     await mongoose.connection.close();
 });
 
-// creating sweets for search tests using correct API endpoint
+// creating sweets for search tests 
 beforeEach(async () => {
-    // Use POST /api/sweets to CREATE sweets, not /api/sweets/search
     await request(app)
         .post('/api/sweets')
-        .set("Authorization", `Bearer ${userToken}`)
+        .set("Authorization", `Bearer ${adminToken}`) // only admin can add sweets
         .send({
             name: 'Gulab Jamun',
             category: 'candy',
@@ -61,7 +60,7 @@ beforeEach(async () => {
 
     await request(app)
         .post('/api/sweets')
-        .set("Authorization", `Bearer ${userToken}`)
+        .set("Authorization", `Bearer ${adminToken}`)
         .send({
             name: 'Ladoo',
             category: 'candy',
@@ -71,7 +70,7 @@ beforeEach(async () => {
 
     await request(app)
         .post('/api/sweets')
-        .set("Authorization", `Bearer ${userToken}`)
+        .set("Authorization", `Bearer ${adminToken}`)
         .send({
             name: 'Lassi',
             category: 'other',
@@ -87,7 +86,7 @@ describe('Test for Sweets', () => {
     it('should create a new sweet', async () => {
         const res = await request(app)
             .post('/api/sweets')
-            .set("Authorization", `Bearer ${userToken}`)
+            .set("Authorization", `Bearer ${adminToken}`) // only admin can add sweets
             .send({
                 name: 'Chocolate Cake',
                 category: 'cake',
@@ -111,13 +110,13 @@ describe('Test for Sweets', () => {
         // first create a sweet
         await request(app)
             .post('/api/sweets')
-            .set("Authorization", `Bearer ${userToken}`)
+            .set("Authorization", `Bearer ${adminToken}`)
             .send(sweetData);
 
         // try creating the sweet again with the same name
         const res = await request(app)
             .post('/api/sweets')
-            .set("Authorization", `Bearer ${userToken}`)
+            .set("Authorization", `Bearer ${adminToken}`)
             .send(sweetData);
 
         expect(res.statusCode).toEqual(400);
@@ -172,7 +171,7 @@ describe('Test for Sweets', () => {
         // first create a sweet to update
         const sweetRes = await request(app)
             .post('/api/sweets')
-            .set("Authorization", `Bearer ${userToken}`)
+            .set("Authorization", `Bearer ${adminToken}`)
             .send({
                 name: 'Strawberry Cake',
                 category: 'cake',
