@@ -113,10 +113,6 @@ export const validateSweetUpdate = [
         .optional()
         .isFloat({ gt: 0 })
         .withMessage('Price must be a number greater than 0'),
-    body('quantity')
-        .optional()
-        .isInt({ gt: -1 })
-        .withMessage('Quantity must be a non-negative integer'),
     handleValidationErrors
 ]
 

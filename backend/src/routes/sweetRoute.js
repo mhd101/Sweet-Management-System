@@ -127,7 +127,20 @@ router.get('/search', authenticateToken, validateSweetSearch,authorizeRoles('use
 router.put('/:id', authenticateToken, authorizeRoles('admin'), validateSweetUpdate, async (req, res) => {
     try {
         const sweetId = req.params.id;
-        const updateData = req.body;
+        const { name, category, price } = req.body;
+
+        const updateData = {};
+        if (name) updateData.name = name;
+        if (category) updateData.category = category;
+        if (price) updateData.price = price;
+
+        // if no fields to update
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "No fields provided for update"
+            });
+        }
 
         // find the sweet by id
         const sweet = await Sweet.findById(sweetId);

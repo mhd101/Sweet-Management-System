@@ -186,14 +186,12 @@ describe('Test for Sweets', () => {
             .set("Authorization", `Bearer ${adminToken}`) // only admin can update
             .send({
                 price: 18.0,
-                quantity: 8,
                 name: "Strawberry Delight",
                 category: "other"
             });
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toBe(true);
         expect(res.body.sweet.price).toBe(18.0);
-        expect(res.body.sweet.quantity).toBe(8);
         expect(res.body.sweet.name).toBe("Strawberry Delight");
         expect(res.body.sweet.category).toBe("other");
     })
@@ -218,12 +216,35 @@ describe('Test for Sweets', () => {
             .set("Authorization", `Bearer ${userToken}`) // user role
             .send({
                 price: 18.0,
-                quantity: 8,
                 name: "Strawberry Delight",
                 category: "other"
             });
         expect(res.statusCode).toEqual(403);
         expect(res.body.message).toBe("You do not have permission to perform this action");
+    })
+
+    it("should not update quantity", async () => {
+        // first create a sweet to update
+        const sweetRes = await request(app)
+            .post('/api/sweets')
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({
+                name: 'Blueberry Cake',
+                category: 'cake',
+                price: 22.0,
+                quantity: 7
+            });
+        const sweetId = sweetRes.body.sweet._id;
+
+        // now try to update the quantity 
+        const res = await request(app)
+            .put(`/api/sweets/${sweetId}`)
+            .set("Authorization", `Bearer ${adminToken}`) // only admin can update
+            .send({
+                quantity: 50 // should not be allowed
+            });
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toBe(false);
     })
 
     // deleting a sweet with admin role
