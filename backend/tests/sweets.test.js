@@ -3,10 +3,18 @@ import app from '../src/server.js';
 import mongoose from 'mongoose';
 import Sweet from '../src/models/Sweet.js';
 import dotenv from 'dotenv';
+import User from '../src/models/User.js';
 dotenv.config({ path: '.env' });
+
+let userToken = '';
+let adminToken = '';
 
 beforeAll(async () => {
     await mongoose.connect(process.env.MONGO_URI)
+
+    // clear DB before running tests
+    await User.deleteMany({});
+    await Sweet.deleteMany({});
 
     // create a user for authentication
     const user = await request(app).post('/api/auth/register').send({
@@ -15,7 +23,7 @@ beforeAll(async () => {
         email: 'test@user.com',
         password: 'password123'
     });
-    const userToken = user.body.token
+    userToken = user.body.token
 
     // create admin user for authentication(if needed in future)
     const admin = await request(app).post('/api/auth/register').send({
@@ -25,14 +33,16 @@ beforeAll(async () => {
         password: 'password123',
         role: 'admin'
     });
-    const adminToken = admin.body.token
-})
+    adminToken = admin.body.token
+});
 
+// Clean up sweets after each test to ensure test isolation
 afterEach(async () => {
     await Sweet.deleteMany({});
 });
 
 afterAll(async () => {
+    await User.deleteMany({}); // delete users after each test to avoid conflicts
     await mongoose.connection.close();
 });
 
@@ -43,9 +53,9 @@ describe('Test for Sweets', () => {
     it('should create a new sweet', async () => {
         const res = await request(app)
             .post('/api/sweets')
+            .set("Authorization", `Bearer ${userToken}`)
             .send({
                 name: 'Chocolate Cake',
-                description: 'Delicious chocolate cake',
                 category: 'cake',
                 price: 15.99,
                 quantity: 10
@@ -53,5 +63,31 @@ describe('Test for Sweets', () => {
         expect(res.statusCode).toEqual(201);
         expect(res.body.success).toBe(true);
         expect(res.body.sweet).toHaveProperty("_id");
+    });
+
+    // adding a sweet with existing name
+    it("should not create a sweet with existing name", async () => {
+        const sweetData = {
+            name: 'Vanilla Cake',
+            category: 'cake',
+            price: 15.99,
+            quantity: 10
+        };
+
+        // first create a sweet
+        await request(app)
+            .post('/api/sweets')
+            .set("Authorization", `Bearer ${userToken}`)
+            .send(sweetData);
+
+        // try creating the sweet again with the same name
+        const res = await request(app)
+            .post('/api/sweets')
+            .set("Authorization", `Bearer ${userToken}`)
+            .send(sweetData);
+            
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe("Sweet with this name already exists");
     });
 });

@@ -5,6 +5,7 @@ import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import connectDB  from './config/db.js';
 import authRoute from './routes/authRoute.js';
+import sweetRoute from './routes/sweetRoute.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,6 +37,7 @@ app.get('/', (req, res) => {
 
 // routes
 app.use('/api/auth', authRoute);
+app.use('/api/sweets', sweetRoute);
 
 // listening to the server on the specified port
 app.listen(PORT, () => {
