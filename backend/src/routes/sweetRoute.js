@@ -1,6 +1,6 @@
 import express from 'express';
 import Sweet from '../models/Sweet.js';
-import { validateSweet, validateSweetSearch, validateSweetUpdate } from '../middlewares/validation.js';
+import { validateRestock, validateSweet, validateSweetSearch, validateSweetUpdate, validatePurchase } from '../middlewares/validation.js';
 import { authenticateToken, authorizeRoles } from '../middlewares/auth.js';
 
 const router = express.Router();
@@ -201,7 +201,7 @@ router.delete('/:id', authenticateToken, authorizeRoles('admin'), async (req, re
 })
 
 // purchase a sweet by id (decrease quantity)
-router.post('/:id/purchase', authenticateToken, authorizeRoles('user'), async (req, res) => {
+router.post('/:id/purchase', authenticateToken, validatePurchase, authorizeRoles('user'), async (req, res) => {
     try {
         const sweetId = req.params.id;
         const { quantity } = req.body;
@@ -241,5 +241,39 @@ router.post('/:id/purchase', authenticateToken, authorizeRoles('user'), async (r
         })
     }
 })
+
+// restocking a sweet by id (increase quantity)
+router.post('/:id/restock', authenticateToken, validateRestock, authorizeRoles('admin'), async (req, res) => {
+    try {
+        const sweetId = req.params.id;
+        const { quantity } = req.body;
+
+        // find the sweet by id
+        const sweet = await Sweet.findById(sweetId);
+        if (!sweet) {
+            return res.status(404).json({
+                success: false,
+                message: "Sweet not found"
+            });
+        }
+
+        // increment the quantity
+        sweet.quantity += quantity;
+        await sweet.save();
+
+        // respond with success message
+        res.status(200).json({
+            success: true,
+            message: "Sweet restocked successfully",
+            sweet
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Server error while restocking sweet",
+            error: error.message    
+        })
+    }
+});
 
 export default router;

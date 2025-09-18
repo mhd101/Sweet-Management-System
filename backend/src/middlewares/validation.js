@@ -39,14 +39,14 @@ export const validateRegister = [
 
 // handling validation for logging in a user
 export const validateLogin = [
-  body('email')
-    .isEmail()
-    .normalizeEmail()
-    .withMessage('Please provide a valid email'),
-  body('password')
-    .exists()
-    .withMessage('Password is required'),
-  handleValidationErrors
+    body('email')
+        .isEmail()
+        .normalizeEmail()
+        .withMessage('Please provide a valid email'),
+    body('password')
+        .exists()
+        .withMessage('Password is required'),
+    handleValidationErrors
 ];
 
 // handling validation for creating a sweet
@@ -122,6 +122,14 @@ export const validateSweetUpdate = [
 
 // purchase validation
 export const validatePurchase = [
+    body('quantity')
+        .isInt({ gt: 0 })
+        .withMessage('Quantity must be an integer greater than 0'),
+    handleValidationErrors
+]
+
+// restock validation
+export const validateRestock = [
     body('quantity')
         .isInt({ gt: 0 })
         .withMessage('Quantity must be an integer greater than 0'),
