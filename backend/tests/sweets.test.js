@@ -184,7 +184,7 @@ describe('Test for Sweets', () => {
         // now update the sweet
         const res = await request(app)
             .put(`/api/sweets/${sweetId}`)
-            .set("Authorization", `Bearer ${adminToken}`) // assuming only admin can update
+            .set("Authorization", `Bearer ${adminToken}`) // only admin can update
             .send({
                 price: 18.0,
                 quantity: 8,
@@ -223,6 +223,51 @@ describe('Test for Sweets', () => {
                 name: "Strawberry Delight",
                 category: "other"
             });
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.message).toBe("You do not have permission to perform this action");
+    })
+
+    // deleting a sweet with admin role
+    it("should delete a sweet", async () => {
+        // first create a sweet to delete
+        const sweetRes = await request(app)
+            .post('/api/sweets')
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({
+                name: 'Mango Bar',
+                category: 'other',
+                price: 12.0,
+                quantity: 15
+            });
+        const sweetId = sweetRes.body.sweet._id;
+        
+        // now delete the sweet
+        const res = await request(app)
+            .delete(`/api/sweets/${sweetId}`)
+            .set("Authorization", `Bearer ${adminToken}`); // only admin can delete
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.message).toBe("Sweet deleted successfully");
+    })
+    
+    // deleting a sweet with user role
+    it("should not delete a sweet with user role", async () => {
+        // first create a sweet to delete
+        const sweetRes = await request(app)
+            .post('/api/sweets')
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({
+                name: 'Mango Bar',
+                category: 'other',
+                price: 12.0,
+                quantity: 15
+            });
+        const sweetId = sweetRes.body.sweet._id;
+        
+        // now try to delete the sweet with user role
+        const res = await request(app)
+            .delete(`/api/sweets/${sweetId}`)
+            .set("Authorization", `Bearer ${userToken}`); // user role
         expect(res.statusCode).toEqual(403);
         expect(res.body.message).toBe("You do not have permission to perform this action");
     })
