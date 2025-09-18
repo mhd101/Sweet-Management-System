@@ -324,4 +324,55 @@ describe('Test for Sweets', () => {
         expect(res.body.success).toBe(false);
         expect(res.body.message).toBe("Insufficient stock");
     })
+
+    // restocking a sweet 
+    it("should restock a sweet", async () => {
+        // first create a sweet to restock
+        const res = await request(app)
+            .post('/api/sweets')
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({
+                name: 'Pineapple Candy',
+                category: 'candy',
+                price: 9.0,
+                quantity: 10
+            });
+        const sweetId = res.body.sweet._id;
+
+        // now restock the sweet
+        const restockRes = await request(app)
+            .post(`/api/sweets/${sweetId}/restock`)
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({
+                quantity: 20
+            });
+        expect(restockRes.statusCode).toEqual(200);
+        expect(restockRes.body.success).toBe(true);
+        expect(restockRes.body.message).toBe("Sweet restocked successfully");
+        expect(restockRes.body.sweet.quantity).toBe(30); // 10 + 20 = 30
+    })
+
+    it("should not restock a sweet with user role", async () => {
+        // first create a sweet to restock
+        const res = await request(app)
+            .post('/api/sweets')
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({
+                name: 'Pineapple Candy',
+                category: 'candy',
+                price: 9.0,
+                quantity: 10
+            });
+        const sweetId = res.body.sweet._id;
+
+        // now try to restock the sweet with user role
+        const restockRes = await request(app)
+            .post(`/api/sweets/${sweetId}/restock`)
+            .set("Authorization", `Bearer ${userToken}`) // user role
+            .send({
+                quantity: 20
+            });
+        expect(restockRes.statusCode).toEqual(403);
+        expect(restockRes.body.message).toBe("You do not have permission to perform this action");
+    })
 });
