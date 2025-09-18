@@ -34,13 +34,6 @@ beforeAll(async () => {
         role: 'admin'
     });
     adminToken = admin.body.token
-
-    // seed sweets
-    await Sweet.create([
-        { name: "Lassi", category: "other", price: 15.99, quantity: 10 },
-        { name: "Gulab Jamun", category: "candy", price: 5.0, quantity: 20 },
-        { name: "Ladoo", category: "candy", price: 10.0, quantity: 30 },
-    ]);
 });
 
 // Clean up sweets after each test to ensure test isolation
@@ -51,6 +44,40 @@ afterEach(async () => {
 afterAll(async () => {
     await User.deleteMany({}); // delete users after each test to avoid conflicts
     await mongoose.connection.close();
+});
+
+// creating sweets for search tests using correct API endpoint
+beforeEach(async () => {
+    // Use POST /api/sweets to CREATE sweets, not /api/sweets/search
+    await request(app)
+        .post('/api/sweets')
+        .set("Authorization", `Bearer ${userToken}`)
+        .send({
+            name: 'Gulab Jamun',
+            category: 'candy',
+            price: 5.0,
+            quantity: 20
+        });
+
+    await request(app)
+        .post('/api/sweets')
+        .set("Authorization", `Bearer ${userToken}`)
+        .send({
+            name: 'Ladoo',
+            category: 'candy',
+            price: 10.0,
+            quantity: 30
+        });
+
+    await request(app)
+        .post('/api/sweets')
+        .set("Authorization", `Bearer ${userToken}`)
+        .send({
+            name: 'Lassi',
+            category: 'other',
+            price: 15.99,
+            quantity: 10
+        });
 });
 
 // test for sweets endpoint
@@ -100,25 +127,14 @@ describe('Test for Sweets', () => {
 
     // getting all sweets
     it("should get all sweets", async () => {
-        // first create a sweet
-        await request(app)
-            .post('/api/sweets')
-            .set("Authorization", `Bearer ${userToken}`)
-            .send({
-                name: 'Strawberry Cake',
-                category: 'cake',
-                price: 15.99,
-                quantity: 10
-            });
-
         const res = await request(app)
             .get('/api/sweets')
             .set("Authorization", `Bearer ${userToken}`);
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toBe(true);
-        expect(res.body.sweets.length).toBe(1);
+        expect(res.body.sweets.length).toBeGreaterThanOrEqual(3);
         expect(res.body.sweets[0]).toHaveProperty("_id");
-    })
+    });
 
     // searching sweets by name
     it("should search sweets by name", async () => {
@@ -129,17 +145,17 @@ describe('Test for Sweets', () => {
         expect(res.body.success).toBe(true);
         expect(res.body.sweets.length).toBeGreaterThan(0);
         expect(res.body.sweets[0].name).toBe("Gulab Jamun");
-    })
+    });
 
     // searching sweets by category
     it("should filter sweets by category", async () => {
         const res = await request(app)
-            .get('/api/sweets/search?category=sweet')
+            .get('/api/sweets/search?category=candy')
             .set("Authorization", `Bearer ${userToken}`);
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toBe(true);
         expect(res.body.sweets.length).toBe(2); // Gulab Jamun and Ladoo
-    })
+    });
 
     // searching sweet by price range
     it("should filter sweets by price range", async () => {
@@ -149,5 +165,5 @@ describe('Test for Sweets', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toBe(true);
         expect(res.body.sweets.length).toBe(2); // Lassi and Ladoo
-    })
+    });
 });

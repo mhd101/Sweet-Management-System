@@ -63,3 +63,32 @@ export const validateSweet = [
         .withMessage('Quantity must be a non-negative integer'),
     handleValidationErrors
 ]
+
+// validate search query parameters for sweets
+export const validateSweetSearch = [
+    body('search')
+        .optional()
+        .trim()
+        .isLength({ min: 1 })
+        .withMessage('Search term must be at least 1 character long'),
+    body('category')
+        .optional()
+        .trim()
+        .isIn(['cake', 'candy', 'cookie', 'pie', 'other'])
+        .withMessage('Category must be one of the following: cake, candy, cookie, pie, other'),
+    body('minPrice')
+        .optional()
+        .isFloat({ gt: -1 })
+        .withMessage('Minimum price must be a number greater than or equal to 0'),
+    body('maxPrice')
+        .optional()
+        .isFloat({ gt: -1 })
+        .withMessage('Maximum price must be a number greater than or equal to 0'),
+    body('minPrice').custom((value, { req }) => {
+        if (value && req.body.maxPrice && parseFloat(value) > parseFloat(req.body.maxPrice)) {
+            throw new Error('Minimum price cannot be greater than maximum price');
+        }
+        return true;
+    }),
+    handleValidationErrors
+];
