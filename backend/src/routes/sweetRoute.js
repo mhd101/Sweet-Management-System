@@ -6,9 +6,9 @@ import { authenticateToken, authorizeRoles } from '../middlewares/auth.js';
 const router = express.Router();
 
 // add a new sweet
-router.post('/', authenticateToken, authorizeRoles('user'), validateSweet, async (req, res) => {
+router.post('/', authenticateToken, validateSweet, async (req, res) => {
     try {
-        const  { name, category, price, quantity } = req.body;
+        const { name, category, price, quantity } = req.body;
 
         // check if sweet with the same name already exists
         const existingSweet = await Sweet.findOne({
@@ -24,14 +24,14 @@ router.post('/', authenticateToken, authorizeRoles('user'), validateSweet, async
 
         // create a new sweet
         const newSweet = new Sweet({
-            name, 
+            name,
             category,
             price,
             quantity
         });
 
         // save sweet to db
-        await newSweet.save();  
+        await newSweet.save();
 
         // respond with the new sweet
         res.status(201).json({
@@ -40,10 +40,39 @@ router.post('/', authenticateToken, authorizeRoles('user'), validateSweet, async
             sweet: newSweet
         });
 
-    }catch (error) {
+    } catch (error) {
         res.status(500).json({
             success: false,
             message: "Server error while creating sweet",
+            error: error.message
+        })
+    }
+})
+
+// get all sweets
+router.get('/', authenticateToken, async (req, res) => {
+    try {
+        const sweets = await Sweet.find();
+
+        // check if sweets exist
+        if (!sweets || sweets.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No sweets found"
+            });
+        }
+
+        // respond with the sweets
+        res.status(200).json({
+            success: true,
+            message: "Sweets fetched successfully",
+            sweets
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Server error while fetching sweets",
             error: error.message
         })
     }
