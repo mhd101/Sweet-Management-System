@@ -90,4 +90,26 @@ describe('Test for Sweets', () => {
         expect(res.body.success).toBe(false);
         expect(res.body.message).toBe("Sweet with this name already exists");
     });
+
+    // getting all sweets
+    it("should get all sweets", async () => {
+        // first create a sweet
+        await request(app)
+            .post('/api/sweets')
+            .set("Authorization", `Bearer ${userToken}`)
+            .send({
+                name: 'Strawberry Cake',
+                category: 'cake',
+                price: 15.99,
+                quantity: 10
+            });
+            
+        const res = await request(app)
+            .get('/api/sweets')
+            .set("Authorization", `Bearer ${userToken}`);
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.sweets.length).toBe(1);
+        expect(res.body.sweets[0]).toHaveProperty("_id");
+    })
 });
