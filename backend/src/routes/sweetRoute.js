@@ -169,4 +169,35 @@ router.put('/:id', authenticateToken, authorizeRoles('admin'), validateSweetUpda
     }
 })
 
+// delete a sweet by id
+router.delete('/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+    try {
+        const sweetId = req.params.id;
+
+        // find the sweet by id
+        const sweet = await Sweet.findById(sweetId);
+        if (!sweet) {
+            return res.status(404).json({
+                success: false,
+                message: "Sweet not found"
+            });
+        }
+
+        // delete the sweet
+        await Sweet.findByIdAndDelete(sweetId);
+        
+        // respond with success message
+        res.status(200).json({
+            success: true,
+            message: "Sweet deleted successfully"
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Server error while deleting sweet",
+            error: error.message
+        })
+    }
+})
+
 export default router;
