@@ -55,3 +55,58 @@ describe('Test for Registration', () => {
         expect(res.body.success).toBe(false);
     });
 });
+
+// test for login endpoint
+describe("Test for Login", () => {
+
+    it('should login an existing user', async () => {
+        await request(app)
+            .post('/api/auth/login')
+            .send({
+                firstName: 'test',
+                lastName: 'user',
+                email: 'test@user.com',
+                password: 'password123'
+            });
+        const res = await request(app)
+            .post('/api/auth/login')
+            .send({
+                email: 'test@user.com',
+                password: 'password123'
+            });
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body).toHaveProperty("token")
+    });
+
+    it('should not login with incorrect password', async () => {
+        await request(app)
+            .post('/api/auth/register')
+            .send({
+                firstName: 'test',
+                lastName: 'user',
+                email: 'test@user.com',
+                password: 'password123'
+            });
+        const res = await request(app)
+            .post('/api/auth/login')
+            .send({
+                email: 'test@user.com',
+                password: 'wrongpassword'
+            });
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toBe(false);
+    });
+    
+    it('should not login non-existing user', async () => {  
+        const res = await request(app)
+            .post('/api/auth/login')
+            .send({
+                email: 'test1@user.com',
+                password: 'password123'
+            });
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toBe(false);
+    });
+
+})
