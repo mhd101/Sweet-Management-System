@@ -200,4 +200,46 @@ router.delete('/:id', authenticateToken, authorizeRoles('admin'), async (req, re
     }
 })
 
+// purchase a sweet by id (decrease quantity)
+router.post('/:id/purchase', authenticateToken, authorizeRoles('user'), async (req, res) => {
+    try {
+        const sweetId = req.params.id;
+        const { quantity } = req.body;
+        
+        // find the sweet by id
+        const sweet = await Sweet.findById(sweetId);
+        if (!sweet) {
+            return res.status(404).json({
+                success: false,
+                message: "Sweet not found"
+            });
+        }
+
+        // check if enough quantity is available
+        if (sweet.quantity < quantity) {
+            return res.status(400).json({
+                success: false,
+                message: "Insufficient stock"
+            });
+        }
+
+        // decrement the quantity
+        sweet.quantity -= quantity;
+        await sweet.save();
+
+        // respond with success message
+        res.status(200).json({
+            success: true,
+            message: "Purchase successful",
+            sweet
+        }); 
+    } catch(error) {
+        res.status(500).json({
+            success: false,
+            message: "Server error while purchasing sweet",
+            error: error.message
+        })
+    }
+})
+
 export default router;

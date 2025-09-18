@@ -119,3 +119,11 @@ export const validateSweetUpdate = [
         .withMessage('Quantity must be a non-negative integer'),
     handleValidationErrors
 ]
+
+// purchase validation
+export const validatePurchase = [
+    body('quantity')
+        .isInt({ gt: 0 })
+        .withMessage('Quantity must be an integer greater than 0'),
+    handleValidationErrors
+]
