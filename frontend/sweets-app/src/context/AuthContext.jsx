@@ -1,4 +1,4 @@
-import React, {
+import {
     createContext, useContext, useEffect, useState
 } from 'react';
 import api from '../api/axiosConfig';
@@ -54,10 +54,12 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         localStorage.removeItem("user");
     }
-    
+
     return (
         <AuthContext.Provider value={{user, setUser, register, login, logout, api}}>
             {children}
         </AuthContext.Provider>
     )
 }
+
+export const useAuth = () => useContext(AuthContext);
