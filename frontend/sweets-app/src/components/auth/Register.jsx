@@ -37,7 +37,8 @@ export default function Register() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
             <form onSubmit={submit} className="w-full max-w-md bg-white rounded-2xl shadow p-6">
-                <h2 className="text-4xl font-bold mb-4 text-center">Create account</h2>
+                <h2 className="text-4xl font-bold mb-4 text-center">Create Account</h2>
+                <p className="text-xl mb-4 text-center">Sign up to view sweets and order easily.</p>
 
                 {error && <div className="bg-red-100 text-red-800 p-2 rounded mb-4">{error}</div>}
 
