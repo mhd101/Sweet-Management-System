@@ -21,8 +21,11 @@ export default function AdminLogin() {
         setError('')
         setLoading(true)
         try {
-            await login(form)
-            navigate('/')
+            const userData = await login(form)
+            if (userData?.user.role === "admin") {
+                console.log("admin logged in")
+                navigate("/admin", {replace: true});
+            }
         } catch (error) {
             setError(error?.response?.data?.message || "Login failed")
         } finally {

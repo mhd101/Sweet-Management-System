@@ -8,7 +8,11 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(() => {
         try {
-            return JSON.parse(localStorage.getItem("user")) || null;
+            const stored = JSON.parse(localStorage.getItem("user")) || null;
+            if (stored?.token) {
+                api.defaults.headers.common['Authorization'] = `Bearer ${stored.token}`;
+            }
+            return stored;
         } catch {
             return null;
         }
@@ -16,6 +20,7 @@ export const AuthProvider = ({ children }) => {
 
     // set token in axios headers
     useEffect(() => {
+        console.log(user)
         if (user?.token) {
             api.defaults.headers.common['Authorization'] = `Bearer ${user.token}`;
         } else {
@@ -56,7 +61,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     return (
-        <AuthContext.Provider value={{user, setUser, register, login, logout, api}}>
+        <AuthContext.Provider value={{ user, setUser, register, login, logout, api }}>
             {children}
         </AuthContext.Provider>
     )

@@ -5,19 +5,21 @@ import AdminLogin from "./components/auth/AdminLogin";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import { useAuth } from "./context/AuthContext.jsx";
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
 
-function PrivateRoute({children, adminOnly = false}) {
+function PrivateRoute({ children }) {
   const { user } = useAuth();
-  
+
   if (!user) {
     // Not logged in
-    return <Navigate to="/login" replace/>
+    return <Navigate to="/login" replace />
   }
 
-  if (adminOnly && !user.isAdmin) {
-    // Not an admin
-    return <Navigate to="/" replace/>
-  }
+  // user redirect to dasboard
+  if (user?.user?.role !== 'admin') {
+    return <Navigate to="/" replace />
+  } 
 
   return children;
 }
@@ -26,22 +28,39 @@ function PrivateRoute({children, adminOnly = false}) {
 function App() {
 
   return (
-    <Routes>
-      <Route path="/" element={<Dashboard />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/admin-login" element={<AdminLogin />} />
-      <Route
-        path="/admin"
-        element={
-          <PrivateRoute adminOnly>
-            <AdminDashboard />
-          </PrivateRoute>
-        }
-      />
+    <>
+
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute>
+              <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
       // Redirect any unknown routes to home
-      <Route path="*" element={<Navigate to="/" />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" />} />
+
+
+      </Routes>
+      <ToastContainer
+        position="top-right" 
+        autoClose={5000}     
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+    </>
+    
   )
 }
 

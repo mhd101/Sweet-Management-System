@@ -21,8 +21,10 @@ export default function Login() {
         setError('')
         setLoading(true)
         try {
-            await login(form)
-            navigate('/')
+            const userData = await login(form)
+            if(userData?.user.role === 'user'){
+                navigate("/")
+            }
         } catch (error) {
             setError(error?.response?.data?.message || "Login failed")
         } finally {
