@@ -10,7 +10,7 @@ beforeAll(async () => {
 })
 
 afterEach(async () => {
-    await User.deleteMany({});
+    await User.deleteMany({}); // clear users after each test
 });
 
 afterAll(async () => {

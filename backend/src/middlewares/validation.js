@@ -30,10 +30,6 @@ export const validateRegister = [
         .trim()
         .isLength({ min: 1 })
         .withMessage('Last name is required'),
-    body('role')
-        .optional()
-        .isIn(['user', 'admin'])
-        .withMessage('Role must be either user or admin'),
     handleValidationErrors
 ];
 

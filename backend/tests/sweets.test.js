@@ -13,7 +13,7 @@ beforeAll(async () => {
     await mongoose.connect(process.env.MONGO_URI)
 
     // clear DB before running tests
-    await User.deleteMany({});
+    await User.deleteMany({ role: 'user' }); // delete only users with role 'user'
     await Sweet.deleteMany({});
 
     // create a user for authentication
@@ -25,14 +25,27 @@ beforeAll(async () => {
     });
     userToken = user.body.token
 
-    // create admin user for authentication(if needed in future)
-    const admin = await request(app).post('/api/auth/register').send({
-        firstName: 'admin',
-        lastName: 'user',
-        email: 'test@admin.com',
-        password: 'password123',
-        role: 'admin'
+    // check if admin user already exists
+    const adminExists = await User.findOne({ email: process.env.ADMIN_EMAIL });
+    if (!adminExists) {
+        // create admin user
+        const adminUser = new User({
+            firstName: 'test',
+            lastName: 'admin',
+            email: process.env.ADMIN_EMAIL,
+            password: process.env.ADMIN_PASSWORD,
+            role: 'admin'
+        });
+        // save admin user to db
+        await adminUser.save();
+    }
+
+    // login admin user for admin operations
+    const admin = await request(app).post('/api/auth/login').send({
+        email: process.env.ADMIN_EMAIL,
+        password: process.env.ADMIN_PASSWORD
     });
+    
     adminToken = admin.body.token
 });
 
@@ -42,7 +55,7 @@ afterEach(async () => {
 });
 
 afterAll(async () => {
-    await User.deleteMany({}); // delete users after each test to avoid conflicts
+    await User.deleteMany({ role: 'user' }); // delete users after each test to avoid conflicts
     await mongoose.connection.close();
 });
 
@@ -260,7 +273,7 @@ describe('Test for Sweets', () => {
                 quantity: 15
             });
         const sweetId = sweetRes.body.sweet._id;
-        
+
         // now delete the sweet
         const res = await request(app)
             .delete(`/api/sweets/${sweetId}`)
@@ -269,7 +282,7 @@ describe('Test for Sweets', () => {
         expect(res.body.success).toBe(true);
         expect(res.body.message).toBe("Sweet deleted successfully");
     })
-    
+
     // deleting a sweet with user role
     it("should not delete a sweet with user role", async () => {
         // first create a sweet to delete
@@ -283,7 +296,7 @@ describe('Test for Sweets', () => {
                 quantity: 15
             });
         const sweetId = sweetRes.body.sweet._id;
-        
+
         // now try to delete the sweet with user role
         const res = await request(app)
             .delete(`/api/sweets/${sweetId}`)
@@ -332,7 +345,7 @@ describe('Test for Sweets', () => {
                 quantity: 10
             });
         const sweetId = sweetRes.body.sweet._id;
-        
+
         // now try to purchase more than available stock
         const res = await request(app)
             .post(`/api/sweets/${sweetId}/purchase`)
