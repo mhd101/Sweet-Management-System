@@ -31,9 +31,9 @@ export default function SweetsList() {
     return (
         <div className="p-6">
             <div className="max-w-4xl mx-auto mb-6">
-                <div className="flex justify-center items-center gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
                     {/* name filter */}
-                    <div className="flex items-center gap-2 flex-1 bg-white p-2 rounded shadow">
+                    <div className="flex items-center gap-2 bg-white p-2 rounded shadow">
                         <Search className="w-5 h-5 text-slate-400" />
                         <input
                             placeholder="Search sweets by name"
@@ -42,9 +42,14 @@ export default function SweetsList() {
                             className="w-full outline-none"
                         />
                     </div>
+
                     {/* category filter */}
                     <div>
-                        <select value={category} onChange={(e) => setCategory(e.target.value)} className="bg-white p-2 rounded shadow">
+                        <select
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
+                            className="bg-white p-2 rounded shadow w-full"
+                        >
                             <option value="">All categories</option>
                             <option value="cake">Cakes</option>
                             <option value="candy">Candy</option>
@@ -53,9 +58,10 @@ export default function SweetsList() {
                             <option value="other">Others</option>
                         </select>
                     </div>
+
                     {/* price range filter */}
-                    <div style={{ width: "200px" }}>
-                        <h3>Price Range</h3>
+                    <div className="bg-white p-2 rounded shadow">
+                        <h3 className="text-sm font-medium mb-2">Price Range</h3>
                         <Slider
                             range
                             min={0}
@@ -69,7 +75,9 @@ export default function SweetsList() {
                                 { borderColor: "#333", backgroundColor: "#fff" }
                             ]}
                         />
-                        <p>Selected Range: <b>{minPrice}</b> – <b>{maxPrice}</b></p>
+                        <p className="text-sm mt-2">
+                            Selected Range: <b>{minPrice}</b> – <b>{maxPrice}</b>
+                        </p>
                     </div>
                 </div>
             </div>
