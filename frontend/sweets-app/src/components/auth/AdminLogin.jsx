@@ -82,9 +82,10 @@ export default function AdminLogin() {
                     {loading ? "Logging in..." : "Login"}
                 </button>
 
-                <p className="text-sm text-center text-gray-500 mt-4">
-                    Are you user? <Link className="text-indigo-600" to="/login">User login</Link>
-                </p>
+                <div className="text-sm text-center text-gray-500 mt-4">
+                    <p>default credentials(test@admin.com/password@123)</p> 
+                    <p>Are you user? <Link className="text-indigo-600" to="/login">User login</Link></p>
+                </div>
             </form>
         </div>
     )
