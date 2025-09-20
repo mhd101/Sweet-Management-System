@@ -3,11 +3,10 @@ import { useAuth } from "../../context/AuthContext"
 import { useState } from "react"
 import { User, Mail, Lock } from "lucide-react"
 import { Link } from "react-router-dom"
-
-
+import { toast } from "react-toastify"
 
 export default function Register() {
-    const { register } = useAuth()
+    const { register } = useAuth() // register context
     const navigate = useNavigate()
     const [form, setForm] = useState({
         firstName: '',
@@ -15,20 +14,20 @@ export default function Register() {
         email: '',
         password: ''
     })
-    const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
 
+    // updates the field in the form state
     const change = (e) => setForm({ ...form, [e.target.name]: e.target.value })
-
+    
+    // function to handle form submission
     const submit = async (e) => {
-        e.preventDefault();
-        setError('')
+        e.preventDefault(); // prevent page reload
         setLoading(true)
         try {
             await register(form)
-            navigate('/')
+            navigate('/') // after registering user navigate to user dashboard
         } catch (error) {
-            setError(error?.response?.data?.message || "Registration failed")
+            toast.error("User Registration Failed")
         } finally {
             setLoading(false)
         }
@@ -36,11 +35,10 @@ export default function Register() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+            {/* user registration form */}
             <form onSubmit={submit} className="w-full max-w-md bg-white rounded-2xl shadow p-6">
                 <h2 className="text-4xl font-bold mb-4 text-center">Create Account</h2>
                 <p className="text-xl mb-4 text-center">Sign up to view sweets and order easily.</p>
-
-                {error && <div className="bg-red-100 text-red-800 p-2 rounded mb-4">{error}</div>}
 
                 <label className="block mb-3">
                     <span className="text-sm text-gray-600">Firstname</span>

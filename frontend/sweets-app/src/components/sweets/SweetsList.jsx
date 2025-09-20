@@ -7,11 +7,13 @@ import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 
 export default function SweetsList() {
-    const { sweets, searchSweets, purchaseSweet } = useSweets()
+    const { sweets, searchSweets, purchaseSweet } = useSweets() // sweets context
+    // searchSweets param states
     const [name, setName] = useState("")
     const [category, setCategory] = useState("")
     const [range, setRange] = useState([0, 500])
 
+    // handle range change
     const handleChange = (newRange) => {
         setRange(newRange)
     }
@@ -72,6 +74,7 @@ export default function SweetsList() {
                 </div>
             </div>
 
+            {/* list sweets */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
                 {sweets?.sweets?.length > 0 ? (sweets?.sweets?.map((s) => (
                     <SweetCard key={s._id} sweet={s} onPurchase={async (id, qty) => {

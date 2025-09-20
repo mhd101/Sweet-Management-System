@@ -9,14 +9,14 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 
 function PrivateRoute({ children }) {
-  const { user } = useAuth();
+  const { user } = useAuth(); // user context
 
+  // if user in not authenticated
   if (!user) {
-    // Not logged in
     return <Navigate to="/login" replace />
   }
 
-  // user redirect to dasboard
+  // if role is not admin then redirect to user dashboard
   if (user?.user?.role !== 'admin') {
     return <Navigate to="/" replace />
   } 
@@ -24,17 +24,15 @@ function PrivateRoute({ children }) {
   return children;
 }
 
-
 function App() {
-
   return (
     <>
-
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/admin-login" element={<AdminLogin />} />
+        {/* private route for admin */}
         <Route
           path="/admin"
           element={
@@ -43,11 +41,11 @@ function App() {
             </PrivateRoute>
           }
         />
-      // Redirect any unknown routes to home
+      {/* redirect any unknown routes to home */}
         <Route path="*" element={<Navigate to="/" />} />
-
-
       </Routes>
+
+      {/* toaster configuration */}
       <ToastContainer
         position="top-right" 
         autoClose={5000}     
@@ -60,7 +58,6 @@ function App() {
         pauseOnHover
       />
     </>
-    
   )
 }
 

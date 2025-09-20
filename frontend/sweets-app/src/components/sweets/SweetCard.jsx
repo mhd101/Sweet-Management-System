@@ -5,12 +5,14 @@ import { useState } from "react"
 export default function SweetCard({ sweet, onPurchase }) {
     const [qty, setQty] = useState(1)
 
+    // handle increment
     const increment = () => {
         if (qty < sweet.quantity) {
             setQty(qty + 1)
         }
     }
 
+    // handle decrement
     const decrement = () => {
         if (qty > 1) {
             setQty(qty - 1)
@@ -19,7 +21,7 @@ export default function SweetCard({ sweet, onPurchase }) {
 
     return (
         <div className="bg-white rounded-lg shadow p-4 flex flex-col">
-
+            {/* sweet details */}
             <div className="flex-1">
                 <h3 className="font-semibold text-lg">{sweet.name}</h3>
                 <p className="text-sm text-slate-600">{sweet.category}</p>

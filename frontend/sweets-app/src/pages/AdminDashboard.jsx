@@ -4,14 +4,15 @@ import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
+// list of all categories
 const categories = ["cake", "candy", "cookie", "pie", "other"];
 
 export default function AdminDashboard() {
-  const { sweets, addSweet, updateSweet, deleteSweet, restockSweet } = useSweets();
+  const { sweets, addSweet, updateSweet, deleteSweet, restockSweet } = useSweets(); // sweets context
 
   const navigate = useNavigate()
 
-  const { logout } = useAuth();
+  const { logout } = useAuth(); // logout context
 
   // add form state
   const [form, setForm] = useState({ name: "", price: 0, category: "cake", quantity: 0 });
@@ -24,14 +25,14 @@ export default function AdminDashboard() {
   const [restockId, setRestockId] = useState(null);
   const [restockValue, setRestockValue] = useState(0);
 
-  // add Sweet
+  // add sweet
   const submit = async (e) => {
     e.preventDefault();
     await addSweet(form);
     setForm({ name: "", price: 0, category: "cake", quantity: 0 });
   };
 
-  // Edit Sweet
+  // edit sweet
   const startEditing = (sweet) => {
     setEditingId(sweet._id);
     setEditForm({
@@ -41,13 +42,13 @@ export default function AdminDashboard() {
     });
   };
 
-  // Update Sweet
+  // update sweet
   const handleUpdate = async (id) => {
     await updateSweet(id, editForm);
     setEditingId(null);
   };
 
-  // Restock Sweet
+  // restock sweet
   const handleRestock = async (id) => {
     if (restockValue > 0) {
       await restockSweet(id, restockValue);
@@ -56,6 +57,7 @@ export default function AdminDashboard() {
     }
   };
 
+  // handle logout
   const handleLogout = () => {
     logout();
     toast.success("Logout successfully")
@@ -65,17 +67,20 @@ export default function AdminDashboard() {
   return (
     <div className="p-6 max-w-6xl mx-auto relative">
 
+      {/* logout button */}
       <button
         onClick={handleLogout}
         className="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer transition"
       >
         Logout
       </button>
+
+      {/* dashboard heading */}
       <h2 className="text-4xl font-semibold mb-4 text-center">
         Admin Dashboard - Manage Sweets
       </h2>
 
-      {/* Add Sweet Form */}
+      {/* form to add a sweet */}
       <h2 className="text-2xl font-semibold text-center mb-6">Add a new Sweet</h2>
       <div className="bg-white p-6 rounded shadow mb-8">
         <form onSubmit={submit} className="flex flex-col gap-6 w-full">

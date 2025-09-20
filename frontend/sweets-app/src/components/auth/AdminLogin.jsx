@@ -3,31 +3,33 @@ import { useAuth } from "../../context/AuthContext";
 import { useState } from "react";
 import { Mail, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function AdminLogin() {
-    const { login } = useAuth();
-    const navigate = useNavigate()
+    const { login } = useAuth(); // login context
+    const navigate = useNavigate() 
     const [form, setForm] = useState({
         email: "",
         password: ""
     })
-    const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
 
+    // updates the field in the form state
     const change = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
+    // function to handle form submission
     const submit = async (e) => {
-        e.preventDefault();
-        setError('')
+        e.preventDefault(); // prevent page reload
         setLoading(true)
         try {
             const userData = await login(form)
+            // check if the logged-in user is an admin then navigate to admin dashboard
             if (userData?.user.role === "admin") {
                 console.log("admin logged in")
                 navigate("/admin", {replace: true});
             }
         } catch (error) {
-            setError(error?.response?.data?.message || "Login failed")
+            toast.error("Admin Login Failed")
         } finally {
             setLoading(false)
         }
@@ -35,11 +37,10 @@ export default function AdminLogin() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+            {/* admin login form */}
             <form onSubmit={submit} className="w-full max-w-md bg-white rounded-2xl shadow p-6">
                 <h2 className="text-4xl font-bold mb-4 text-center">Admin Login</h2>
                 <p className="text-xl mb-4 text-center">Manage your sweets inventory</p>
-
-                {error && <div className="bg-red-100 text-red-800 p-2 rounded mb-4">{error}</div>}
 
                 <label className="block mb-3">
                     <span className="text-sm text-gray-600">Email</span>

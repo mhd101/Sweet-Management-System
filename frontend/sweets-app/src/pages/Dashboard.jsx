@@ -6,18 +6,20 @@ import { toast } from "react-toastify";
 
 export default function Dashboard() {
 
-  const { user, logout } = useAuth()
+  const { user, logout } = useAuth() // user and logout context
   const navigate = useNavigate()
 
+  // if user is not authenticated then redirect to login page
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
+  // if the user is admin then redirect to admin dashboard
   if (user?.user?.role === 'admin') {
-
     return <Navigate to="/admin" replace />;
   }
 
+  // handle logout
   const handleLogout = () => {
     logout();
     toast.success("Logout successfully")
@@ -27,20 +29,25 @@ export default function Dashboard() {
     <>
       <div className="p-6 max-w-6xl mx-auto relative">
 
+        {/* logout button */}
         <button
           onClick={handleLogout}
           className="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer transition"
         >
           Logout
         </button>
-        <h2 className="text-4xl font-semibold mb-4 text-center">
+
+        {/* dashboard heading */}
+        <h2 className="text-4xl font-bold mb-4 text-center">
           Sweet Shop
         </h2>
+        {/* dashboard sub-heading */}
+        <p className="text-xl mb-4 text-center">Handcrafted Delights for Refined Tastes</p>
 
-        <main className="bg-slate-50 min-h-screen">
+        {/* SweetsList component */}
+        <main className="bg-slate-50 min-h-screen rounded-xl">
           <SweetsList />
         </main>
-
 
       </div>
 
