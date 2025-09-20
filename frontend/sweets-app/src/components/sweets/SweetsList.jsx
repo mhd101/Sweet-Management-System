@@ -31,7 +31,7 @@ export default function SweetsList() {
     return (
         <div className="p-6">
             <div className="max-w-4xl mx-auto mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full items-center justify-center">
                     {/* name filter */}
                     <div className="flex items-center gap-2 bg-white p-2 rounded shadow">
                         <Search className="w-5 h-5 text-slate-400" />
