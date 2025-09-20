@@ -31,6 +31,13 @@ export const SweetsProvider = ({ children }) => {
         try {
             const response = await api.get('/sweets/search', { params: filters })
             setSweets(response.data || [])
+        } catch (error) {
+            if (error.status === 404) {
+                toast.warn("No sweets are available")
+            } else {
+                toast.error("Failed to fetch sweets")
+                console.log("Error fetching sweets", error)
+            }
         } finally {
             setLoading(false)
         }
@@ -79,7 +86,7 @@ export const SweetsProvider = ({ children }) => {
         }
     }
 
-    const purchaseSweet = async (id, quantity = 1) => {
+    const purchaseSweet = async (id, quantity) => {
         const response = await api.post(`/sweets/${id}/purchase`, { quantity })
         fetchSweets()
         return response.data

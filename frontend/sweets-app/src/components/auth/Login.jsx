@@ -80,9 +80,10 @@ export default function Login() {
                     {loading ? "Logging in..." : "Login"}
                 </button>
 
-                <p className="text-sm text-center text-gray-500 mt-4">
-                    Are you admin? <Link className="text-indigo-600" to="/admin-login">Admin login</Link>
-                </p>
+                <div className="text-sm text-center text-gray-500 mt-4">
+                    <p>Don't have an account? <Link className="text-indigo-600" to="/register">Create account</Link></p>
+                    <p>Are you an admin? <Link className="text-indigo-600" to="/admin-login">Admin login</Link></p>
+                </div>
             </form>
         </div>
     )
